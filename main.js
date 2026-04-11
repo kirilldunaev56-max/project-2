@@ -1,10 +1,7 @@
-/* ============================================
+/* 
    Медоварня — main.js
-   ============================================ */
+   */
 
-// ════════════════════════════════════════
-//  STORAGE (localStorage wrapper)
-// ════════════════════════════════════════
 const Storage = {
   get(key) {
     try { return JSON.parse(localStorage.getItem(key)); }
@@ -20,9 +17,7 @@ const Storage = {
   }
 };
 
-// ════════════════════════════════════════
-//  TOAST NOTIFICATIONS
-// ════════════════════════════════════════
+
 const Toast = (() => {
   const el      = document.getElementById('toast');
   const msgEl   = document.getElementById('toastMessage');
@@ -37,7 +32,6 @@ const Toast = (() => {
       el.className = `toast ${type}`;
       iconEl.textContent = ICONS[type] || ICONS.info;
       msgEl.textContent  = message;
-      // Force reflow then show
       requestAnimationFrame(() => {
         requestAnimationFrame(() => el.classList.add('show'));
       });
@@ -46,18 +40,14 @@ const Toast = (() => {
   };
 })();
 
-// ════════════════════════════════════════
-//  HELPERS
-// ════════════════════════════════════════
+
 function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 function qs(sel, ctx = document) { return ctx.querySelector(sel); }
 function qsa(sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
 function on(el, ev, cb) { if (el) el.addEventListener(ev, cb); }
 function randomBetween(a, b) { return a + Math.random() * (b - a); }
 
-// ════════════════════════════════════════
-//  MODAL MANAGER
-// ════════════════════════════════════════
+
 const Modal = (() => {
   const registry = {};
 
@@ -79,21 +69,19 @@ const Modal = (() => {
     document.body.style.overflow = '';
   }
 
-  // Close on backdrop / × button
+  
   document.addEventListener('click', e => {
     if (e.target.classList.contains('modal-backdrop') || e.target.classList.contains('modal-close')) {
       closeAll();
     }
   });
-  // ESC key
+ 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
 
   return { open, close, closeAll, register };
 })();
 
-// ════════════════════════════════════════
-//  NAV: SCROLL + ACTIVE + BURGER
-// ════════════════════════════════════════
+
 function initNav() {
   const nav      = qs('#navbar');
   const links    = qsa('.nav-link');
@@ -102,7 +90,7 @@ function initNav() {
   const navLinks = qs('#navLinks');
   const overlay  = qs('#mobileOverlay');
 
-  // Scroll → scrolled class
+  
   let ticking = false;
   window.addEventListener('scroll', () => {
     if (!ticking) {
@@ -115,7 +103,7 @@ function initNav() {
     }
   }, { passive: true });
 
-  // Active link on scroll
+  
   function updateActiveLink() {
     const scrollY = window.scrollY + 100;
     sections.forEach(sec => {
@@ -127,7 +115,7 @@ function initNav() {
     });
   }
 
-  // Smooth scroll on click
+  
   links.forEach(link => {
     on(link, 'click', e => {
       e.preventDefault();
@@ -137,7 +125,7 @@ function initNav() {
     });
   });
 
-  // Burger toggle
+  
   function openMobileMenu() {
     navLinks.classList.add('open');
     burger.classList.add('open');
@@ -156,7 +144,7 @@ function initNav() {
   });
   on(overlay, 'click', closeMobileMenu);
 
-  // Logo click → hero
+  
   on(qs('.logo'), 'click', e => {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -164,9 +152,7 @@ function initNav() {
   });
 }
 
-// ════════════════════════════════════════
-//  HERO PARTICLES
-// ════════════════════════════════════════
+
 function initParticles() {
   const container = qs('#particles');
   if (!container) return;
@@ -187,13 +173,11 @@ function initParticles() {
   }
 }
 
-// ════════════════════════════════════════
-//  SCROLL REVEAL
-// ════════════════════════════════════════
+
 function initScrollReveal() {
   const els = qsa('[data-reveal]');
   if (!els.length) {
-    // Auto-add to cards if not set
+    
     qsa('.about-card, .menu-card, .booking-card, .review-card.static-review, .contact-card').forEach((el, i) => {
       el.setAttribute('data-reveal', '');
       el.style.transitionDelay = `${(i % 4) * 0.08}s`;
@@ -212,9 +196,7 @@ function initScrollReveal() {
   qsa('[data-reveal]').forEach(el => io.observe(el));
 }
 
-// ════════════════════════════════════════
-//  MENU TABS (filter)
-// ════════════════════════════════════════
+
 function initMenuTabs() {
   const tabs  = qsa('.tab-btn');
   const cards = qsa('.menu-card');
@@ -237,9 +219,7 @@ function initMenuTabs() {
   });
 }
 
-// ════════════════════════════════════════
-//  MENU CARDS → Product Modal
-// ════════════════════════════════════════
+
 function initMenuCards() {
   on(qs('#menuGrid'), 'click', e => {
     const card = e.target.closest('.menu-card');
@@ -257,7 +237,7 @@ function initMenuCards() {
     Modal.open('productModal');
   });
 
-  // Кнопка «Заказать» → открывает форму бронирования с названием товара
+  
   on(qs('#btnOrderProduct'), 'click', () => {
     const productName  = qs('#btnOrderProduct').dataset.product || '';
     const productPrice = qs('#btnOrderProduct').dataset.price   || '';
@@ -272,15 +252,13 @@ function initMenuCards() {
   });
 }
 
-// ════════════════════════════════════════
-//  BOOKING
-// ════════════════════════════════════════
+
 function initBooking() {
-  // Minimum date = today
+  
   const dateInput = qs('#bookingDate');
   if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
 
-  // Open modal on package select
+  
   qsa('.btn-booking').forEach(btn => {
     on(btn, 'click', () => {
       qs('#selectedPackage').textContent = `Пакет: ${btn.dataset.package}`;
@@ -290,7 +268,7 @@ function initBooking() {
     });
   });
 
-  // Submit
+  
   on(qs('#bookingForm'), 'submit', e => {
     e.preventDefault();
     const name   = qs('#bookingName').value.trim();
@@ -365,9 +343,7 @@ function initBooking() {
   });
 }
 
-// ════════════════════════════════════════
-//  AUTH
-// ════════════════════════════════════════
+
 function initAuth() {
   Modal.register('profileModal');
   Modal.register('loginModal');
@@ -383,7 +359,7 @@ function initAuth() {
   on(qs('#switchToRegister'), 'click', e => { e.preventDefault(); Modal.open('registerModal'); });
   on(qs('#switchToLogin'), 'click', e => { e.preventDefault(); Modal.open('loginModal'); });
 
-  // Password toggle
+  
   qsa('.toggle-password').forEach(btn => {
     on(btn, 'click', () => {
       const inp = qs(`#${btn.dataset.target}`);
@@ -394,7 +370,7 @@ function initAuth() {
     });
   });
 
-  // Login
+  
   on(qs('#loginBtn'), 'click', () => {
     const email    = qs('#loginEmail').value.trim();
     const password = qs('#loginPassword').value;
@@ -413,7 +389,7 @@ function initAuth() {
     qs('#loginPassword').value = '';
   });
 
-  // Register
+  
   on(qs('#registerBtn'), 'click', () => {
     const name     = qs('#regName').value.trim();
     const email    = qs('#regEmail').value.trim();
@@ -434,7 +410,7 @@ function initAuth() {
     qs('#regPassword').value = '';
   });
 
-  // Logout
+  
   on(qs('#logoutBtn'), 'click', () => {
     Storage.del('loggedUser');
     Modal.closeAll();
@@ -473,9 +449,7 @@ function updateProfileUI() {
   }
 }
 
-// ════════════════════════════════════════
-//  STAR RATING
-// ════════════════════════════════════════
+
 let selectedRating = 5;
 
 const STAR_LABELS = ['', 'Плохо', 'Так себе', 'Нормально', 'Хорошо', 'Отлично!'];
@@ -499,7 +473,7 @@ function initStarRating() {
       s.classList.toggle('hover', i < r);
       s.classList.toggle('active', false);
     });
-    // Show selected underneath hover
+    
     stars.forEach((s, i) => {
       if (i < r) s.classList.add('active');
     });
@@ -518,20 +492,18 @@ function initStarRating() {
 
   on(starWrap, 'mouseleave', () => setRating(selectedRating));
 
-  // Initial state
+  
   setRating(5);
 }
 
-// ════════════════════════════════════════
-//  REVIEWS
-// ════════════════════════════════════════
+
 let pendingDeleteId = null;
 
 function initReviews() {
   Modal.register('reviewModal');
   Modal.register('deleteModal');
 
-  // Open review modal
+  
   on(qs('#addReviewBtn'), 'click', () => {
     const logged = Storage.get('loggedUser');
     if (!logged) {
@@ -541,13 +513,13 @@ function initReviews() {
       return;
     }
     selectedRating = 5;
-    initStarRating(); // reset stars
+    initStarRating(); 
     qs('#reviewText').value = '';
     qs('#charCount').textContent = '0 / 500';
     Modal.open('reviewModal');
   });
 
-  // Char counter
+  
   on(qs('#reviewText'), 'input', () => {
     const len = qs('#reviewText').value.length;
     const counter = qs('#charCount');
@@ -555,7 +527,7 @@ function initReviews() {
     counter.style.color = len > 450 ? '#E57373' : 'var(--text-4)';
   });
 
-  // Submit review
+  
   on(qs('#submitReview'), 'click', () => {
     const text = qs('#reviewText').value.trim();
     if (!text) return Toast.show('Напишите текст отзыва', 'error');
@@ -581,7 +553,7 @@ function initReviews() {
     Toast.show('Спасибо за ваш отзыв! 🍯', 'success');
   });
 
-  // Delete confirm modal
+  
   on(qs('#confirmDelete'), 'click', () => {
     if (pendingDeleteId === null) return;
     const reviews = (Storage.get('reviews') || []).filter(r => r.id !== pendingDeleteId);
@@ -593,7 +565,7 @@ function initReviews() {
   });
   on(qs('#cancelDelete'), 'click', () => { pendingDeleteId = null; Modal.closeAll(); });
 
-  // Initial render
+  
   renderReviews();
 }
 
@@ -607,14 +579,14 @@ function renderReviews() {
   const savedRevs   = Storage.get('reviews') || [];
   const loggedEmail = Storage.get('loggedUser');
 
-  // Remove dynamic reviews
+  
   qsa('.dynamic-review', list).forEach(el => el.remove());
 
-  // Prepend saved reviews (newest first)
+  
   [...savedRevs].forEach(rev => {
     const canDelete = loggedEmail && rev.authorEmail === loggedEmail;
     const card = buildReviewCard(rev, canDelete);
-    // Insert before first static review
+
     const firstStatic = qs('.static-review', list);
     if (firstStatic) list.insertBefore(card, firstStatic);
     else list.appendChild(card);
@@ -659,9 +631,7 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-// ════════════════════════════════════════
-//  RIPPLE EFFECT
-// ════════════════════════════════════════
+
 function initRipple() {
   document.addEventListener('click', e => {
     const btn = e.target.closest('.btn-primary, .btn-booking, .btn-add-review');
@@ -689,9 +659,7 @@ function initRipple() {
   });
 }
 
-// ════════════════════════════════════════
-//  PARALLAX (lightweight, RAF-throttled)
-// ════════════════════════════════════════
+
 function initParallax() {
   const heroContent = qs('.hero-content');
   if (!heroContent || window.innerWidth < 768) return;
@@ -713,11 +681,9 @@ function initParallax() {
   }, { passive: true });
 }
 
-// ════════════════════════════════════════
-//  INIT ALL
-// ════════════════════════════════════════
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Register modals
+  
   ['productModal', 'bookingModal', 'profileModal', 'loginModal',
    'registerModal', 'reviewModal', 'deleteModal'].forEach(id => Modal.register(id));
 
@@ -734,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initParallax();
   updateProfileUI();
 
-  // Ripple keyframes injection
+  
   if (!document.querySelector('#rippleStyle')) {
     const s = document.createElement('style');
     s.id = 'rippleStyle';
